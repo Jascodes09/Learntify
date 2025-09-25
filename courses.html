@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Courses</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    h2 { margin-top: 20px; }
+    .course { background: #fff; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    button { background: #007bff; color: #fff; padding: 10px 15px; border: none; border-radius: 6px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Available Courses</h1>
+  <div id="courses"></div>
+
+  <script>
+    // Load course data
+    fetch("courses.json")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("courses");
+        for (let subject in data.subjects) {
+          for (let grade in data.subjects[subject]) {
+            const gradeCourses = data.subjects[subject][grade];
+            const header = document.createElement("h2");
+            header.textContent = `${subject} - ${grade}`;
+            container.appendChild(header);
+
+            gradeCourses.forEach(course => {
+              const div = document.createElement("div");
+              div.className = "course";
+              div.innerHTML = `
+                <h3>${course.title}</h3>
+                <button onclick="enroll('${course.id}', '${course.title}')">Enroll</button>
+              `;
+              container.appendChild(div);
+            });
+          }
+        }
+      });
+
+    function enroll(courseId, title) {
+      let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        alert("Please log in first.");
+        return;
+      }
+
+      if (!currentUser.courses) currentUser.courses = [];
+      if (!currentUser.courses.includes(courseId)) {
+        currentUser.courses.push(courseId);
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        alert(`Enrolled in ${title}`);
+      } else {
+        alert("Already enrolled!");
+      }
+    }
+  </script>
+</body>
+</html>

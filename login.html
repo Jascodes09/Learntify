@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Learntify — Login</title>
+  <style>
+    body { font-family: sans-serif; background:#f9fafb; margin:0; padding:20px; }
+    .container { max-width:420px; margin:auto; background:#fff; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    h2 { text-align:center; }
+    input,button { width:100%; padding:14px; margin:10px 0; border-radius:10px; border:1px solid #ddd; font-size:15px; }
+    button { background:#2563eb; color:#fff; font-weight:600; border:none; cursor:pointer; }
+    .small { text-align:center; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="📧 Email" />
+    <input type="password" id="password" placeholder="🔑 Password" />
+    <button id="loginBtn">Login</button>
+    <div class="small"><a href="register.html">Don’t have an account? Register</a></div>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      let users = JSON.parse(localStorage.getItem("users")) || {};
+      if (!users[email] || users[email].password !== password) {
+        alert("Invalid credentials!");
+        return;
+      }
+
+      localStorage.setItem("currentUser", email);
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>

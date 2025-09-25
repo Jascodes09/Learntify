@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learntify Dashboard</title>
+<style>
+body { margin:0; font-family: Arial,sans-serif; display:flex; height:100vh; background:#f4f4f4; }
+.sidebar { width:200px; background:#2c3e50; color:#fff; padding:20px; box-sizing:border-box; }
+.sidebar h2 { text-align:center; margin-bottom:20px; }
+.sidebar a, .sidebar button { display:block; color:#fff; padding:10px; text-decoration:none; margin-bottom:10px; border:none; cursor:pointer; background:none; text-align:left; font-size:14px; }
+.sidebar a:hover, .sidebar button:hover { background:#34495e; border-radius:4px; }
+.main { flex:1; padding:20px; overflow-y:auto; }
+.course { background:#fff; padding:15px; margin-bottom:10px; border-radius:8px; }
+button.start { background:#007bff; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-size:14px; }
+button.start:hover { background:#0056b3; }
+h1 { margin-top:0; }
+.lesson { background:#fff; padding:15px; border-radius:8px; }
+.lesson button { margin-top:10px; background:#28a745; color:#fff; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; }
+.lesson button:hover { background:#218838; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Learntify</h2>
+  <a href="#" onclick="loadPage('home')">🏠 Home</a>
+  <a href="#" onclick="loadPage('courses')">📚 Courses</a>
+  <a href="#" onclick="loadPage('profile')">👤 Profile</a>
+  <a href="#" onclick="loadPage('progress')">📈 Progress</a>
+  <a href="#" onclick="loadPage('community')">💬 Community</a>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
+
+<div class="main" id="mainContent">
+  <!-- Page content loads here -->
+</div>
+
+<script>
+// ----------------------- Offline Data -----------------------
+const offlineCourses = {
+  "math_6_fractions": {
+    title: "Fractions & Decimals",
+    subject: "Math",
+    grade: "6",
+    lessons: [
+      {id:"l1", title:"Introduction to Fractions", content:"Fractions represent parts of a whole. For example 1/2."},
+      {id:"l2", title:"Decimals in Daily Life", content:"Decimals are numbers with points, e.g., 0.5, 2.75."}
+    ]
+  },
+  "sci_6_food": {
+    title: "Components of Food",
+    subject: "Science",
+    grade: "6",
+    lessons: [
+      {id:"l1", title:"Types of Food", content:"Proteins, carbohydrates, fats, vitamins and minerals."},
+      {id:"l2", title:"Balanced Diet", content:"A balanced diet includes all essential nutrients in proper quantity."}
+    ]
+  }
+};
+
+// Test user for offline/demo
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if(!currentUser){
+  currentUser = {
+    name: "Jasmine",
+    role: "student",
+    courses: ["math_6_fractions","sci_6_food"],
+    progress: { "math_6_fractions": 0, "sci_6_food": 0 } // percentage
+  };
+  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+}
+
+// ----------------------- Page Loader -----------------------
+function loadPage(page){
+  const main = document.getElementById("mainContent");
+  if(page==="home"){
+    main.innerHTML = `<h1>Welcome, ${currentUser.name}!</h1>
+                      <p>Role: ${currentUser.role}</p>
+                      <p>This is your dashboard home.</p>`;
+  }
+  else if(page==="courses"){
+    let html = `<h1>My Courses</h1>`;
+    if(currentUser.courses.length>0){
+      currentUser.courses.forEach(courseId=>{
+        let c = offlineCourses[courseId];
+        html += `<div class="course">
+          <h3>${c.title}</h3>
+          <p>Subject: ${c.subject} | Grade: ${c.grade}</p>
+          <button class="start" onclick="startLesson('${courseId}')">Start Lesson</button>
+        </div>`;
+      });
+    } else html += `<p>No courses enrolled.</p>`;
+    main.innerHTML = html;
+  }
+  else if(page==="profile"){
+    main.innerHTML = `<h1>Profile</h1>
+                      <p><strong>Name:</strong> ${currentUser.name}</p>
+                      <p><strong>Role:</strong> ${currentUser.role}</p>
+                      <p><strong>Email:</strong> ${currentUser.email || "test@example.com"}</p>`;
+  }
+  else if(page==="progress"){
+    let html = `<h1>Progress</h1>`;
+    if(currentUser.courses.length>0){
+      currentUser.courses.forEach(courseId=>{
+        let p = currentUser.progress[courseId] || 0;
+        let c = offlineCourses[courseId];
+        html += `<div class="course">
+          <h3>${c.title}</h3>
+          <p>Progress: ${p}%</p>
+          <div style="background:#ddd; border-radius:4px; overflow:hidden; height:10px;">
+            <div style="width:${p}%; background:#007bff; height:100%;"></div>
+          </div>
+        </div>`;
+      });
+    } else html += `<p>No courses progress yet.</p>`;
+    main.innerHTML = html;
+  }
+  else if(page==="community"){
+    main.innerHTML = `<h1>Community</h1>
+                      <p>Discussion boards and messages coming soon.</p>`;
+  }
+}
+
+// ----------------------- Lesson Loader -----------------------
+function startLesson(courseId){
+  const course = offlineCourses[courseId];
+  if(!course) return;
+  let html = `<h1>${course.title} - Lessons</h1>`;
+  course.lessons.forEach((lesson,index)=>{
+    html += `<div class="lesson">
+      <h3>${index+1}. ${lesson.title}</h3>
+      <p>${lesson.content}</p>
+      <button onclick="markProgress('${courseId}',${index+1},${course.lessons.length})">Mark as Completed</button>
+    </div>`;
+  });
+  html += `<button onclick="loadPage('courses')">⬅ Back to Courses</button>`;
+  document.getElementById("mainContent").innerHTML = html;
+}
+
+// ----------------------- Mark Progress -----------------------
+function markProgress(courseId,lessonNumber,total){
+  let percent = Math.floor((lessonNumber/total)*100);
+  currentUser.progress[courseId] = percent;
+  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+  alert(`Progress updated: ${percent}%`);
+}
+
+// ----------------------- Logout -----------------------
+function logout(){
+  localStorage.removeItem("currentUser");
+  alert("Logged out!");
+  location.reload();
+}
+
+// ----------------------- Initialize -----------------------
+loadPage("home");
+</script>
+
+</body>
+</html>

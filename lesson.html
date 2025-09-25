@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lesson Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:20px; background:#f9f9f9; }
+    .lesson-container { max-width: 600px; margin:auto; background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    h1 { font-size:22px; }
+    p { font-size:16px; }
+    img, video, audio { width:100%; margin:10px 0; border-radius:8px; }
+    .controls { display:flex; justify-content:space-between; margin-top:20px; }
+    button { padding:10px 16px; font-size:15px; border:none; border-radius:8px; cursor:pointer; }
+    .next { background:#007bff; color:white; }
+    .revisit { background:#f1f1f1; }
+  </style>
+</head>
+<body>
+  <div class="lesson-container">
+    <h1 id="lessonTitle"></h1>
+    <div id="lessonContent"></div>
+    <div class="controls">
+      <button class="revisit" onclick="revisit()">🔄 Revisit</button>
+      <button class="next" onclick="nextLesson()">➡ Next</button>
+    </div>
+  </div>
+
+  <script>
+    // Parse query string for courseId
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get("courseId");
+
+    async function loadLesson() {
+      try {
+        const res = await fetch("courses.json");
+        const data = await res.json();
+
+        // Search through all subjects/grades for the courseId
+        let lesson;
+        for (let subject in data) {
+          for (let grade in data[subject]) {
+            lesson = data[subject][grade].find(c => c.id === courseId);
+            if (lesson) break;
+          }
+          if (lesson) break;
+        }
+
+        if (!lesson) {
+          document.getElementById("lessonContent").innerHTML = "<p>Lesson not found.</p>";
+          return;
+        }
+
+        document.getElementById("lessonTitle").textContent = lesson.title;
+
+        let contentDiv = document.getElementById("lessonContent");
+        lesson.content.forEach(item => {
+          let el;
+          if (item.type === "text") {
+            el = document.createElement("p");
+            el.textContent = item.data;
+          } else if (item.type === "image") {
+            el = document.createElement("img");
+            el.src = item.data;
+          } else if (item.type === "video") {
+            el = document.createElement("video");
+            el.src = item.data;
+            el.controls = true;
+          } else if (item.type === "audio") {
+            el = document.createElement("audio");
+            el.src = item.data;
+            el.controls = true;
+          }
+          contentDiv.appendChild(el);
+        });
+
+        // Progress tracking in localStorage
+        let user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user) {
+          user.progress = user.progress || {};
+          user.progress[courseId] = "completed";
+          localStorage.setItem("currentUser", JSON.stringify(user));
+        }
+
+      } catch (err) {
+        console.error("Error loading lesson:", err);
+      }
+    }
+
+    function revisit() {
+      window.location.reload();
+    }
+
+    function nextLesson() {
+      alert("This would load the next lesson (to be implemented).");
+    }
+
+    loadLesson();
+  </script>
+</body>
+</html>
