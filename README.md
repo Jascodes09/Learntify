@@ -8,7 +8,7 @@
 
 ## Overview
 **Learntify** is a **responsive, user-friendly dashboard** for a learning platform.  
-It allows users to navigate between Home, Courses, Profile, Community, and Progress sections with ease. Built with **pure HTML, CSS, and JavaScript**, the dashboard is fully functional **without a backend**.
+It allows users to navigate between **Home, Courses, Profile, Community, and Progress** sections with ease. Built with **pure HTML, CSS, and JavaScript**, the dashboard works **without a backend**.
 
 > "Learn smart, track progress, and grow your skills with Learntify."
 
@@ -55,3 +55,45 @@ You can view the dashboard live using **GitHub Pages**:
 
 ```bash
 git clone https://github.com/yourusername/learntify-dashboard.git
+````
+
+2. Navigate to the project folder:
+
+```bash
+cd learntify-dashboard
+```
+
+3. Open `dashboard.html` in any browser.
+
+---
+
+## Demo Screenshot 📸
+
+![Dashboard Screenshot](screenshot.png)
+
+
+---
+
+## Tech Stack 🛠️
+
+* **Frontend**: HTML, CSS, JavaScript
+* **Responsive Design**: Mobile-first layout
+* **Static Implementation**: No backend required
+
+---
+
+## Author ✍️
+
+**Shaik Jasmine**
+Email: `usermail@gmail.com`
+
+---
+
+## License 📄
+
+This project is **open-source** and licensed under the **MIT License**.
+
+
+---
+
+
